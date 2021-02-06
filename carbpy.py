@@ -1,6 +1,6 @@
  #=================================================================================================================================*
  #
- # CarbPy A process to Estimate the Carbon Dioxide Emmission in Metric Tons for a given journey.  
+ # CarbPy A process to estimate the Carbon Dioxide Emmission in Metric Tons for a given journey.  
  #        From/to Locations are identified and resolved to coordinates, then distance in kilometers calculated using geopy utilities.
  #        GHG emissions (gCO2e/km) per transport mode are derived from 'our world in data' table extract.
  #        To note that this version serves as a prototype or proof-of-concept. It is not meant as a finished product. 
@@ -66,7 +66,7 @@ def cby_carbpy(cby_from='',cby_to='',cby_mode='',guiprompt=True):
                 except:
                     lcl_msgtxt = "Error - Select Transport Mode"               # No - setup error message 
                 else:
-                    cby_co2            = (cby_dist * cby_co2km)/1000           # OK - so calculate total emmission in Co2 kg 
+                    cby_co2            = (cby_dist * cby_co2km)/1000           # OK - so calculate total Co2 emmission 
             
         if guiprompt: cby_popup(cby_co2,lcl_msgtxt)                            # Pop-up the result - if GUI
         return cby_co2                                                         # - or return it to caller. 
