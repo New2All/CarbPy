@@ -1,34 +1,36 @@
  #=================================================================================================================================*
  #
- # CarbPy A process to estimate the Carbon Dioxide Emmission in Metric Tons for a given journey.  
+ # Carby  A process to Estimate the Carbon Dioxide Emmission in Metric Tons for a given journey.  
  #        From/to Locations are identified and resolved to coordinates, then distance in kilometers calculated using geopy utilities.
  #        GHG emissions (gCO2e/km) per transport mode are derived from 'our world in data' table extract.
  #        To note that this version serves as a prototype or proof-of-concept. It is not meant as a finished product. 
- #        Run environment dependencies include pre-installation of geopy and PySimpleGUI modules. See Pypi for details.
- #        Version 0.1 Beta .
+ #        Version 0.2 Beta 
  #=================================================================================================================================*
  #
- #        Copyright (c) 2021 Michael Prior 
+ #       Copyright (c) 2021 Michael Prior 
  #
- #        Permission is hereby granted, free of charge, to any person obtaining a copy
- #        of this software and associated documentation files (the "Software"), to deal
- #        in the Software without restriction, including without limitation the rights
- #        to use, copy, modify, merge, publish, distribute, sublicense, and/or sell
- #        copies of the Software, and to permit persons to whom the Software is
- #        furnished to do so, subject to the following conditions:
+ #       Permission is hereby granted, free of charge, to any person obtaining a copy
+ #       of this software and associated documentation files (the "Software"), to deal
+ #       in the Software without restriction, including without limitation the rights
+ #       to use, copy, modify, merge, publish, distribute, sublicense, and/or sell
+ #       copies of the Software, and to permit persons to whom the Software is
+ #       furnished to do so, subject to the following conditions:
  #
- #        The above copyright notice and this permission notice shall be included in all
- #        copies or substantial portions of the Software.
+ #       The above copyright notice and this permission notice shall be included in all
+ #       copies or substantial portions of the Software.
  #
- #        THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
- #        IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
- #        FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE
- #        AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER
- #        LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
- #        OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
- #        SOFTWARE.
+ #       THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
+ #       IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
+ #       FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE
+ #       AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER
+ #       LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
+ #       OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
+ #       SOFTWARE.
  #
  #=================================================================================================================================*
+ #       CHANGE LOG : V 0.2 Minor label changes, conventions adherence, result rounding; default to 3 dec. Sep 2021 MP
+ #=================================================================================================================================*
+
 import geopy
 import PySimpleGUI as sg
 global lcl_msgtxt
@@ -37,7 +39,7 @@ global lcl_msgtxt
  # Given Journey From and To Locations and Transport Mode, return Estimated Co2 Emmissions in Kg.
  #--------------------------------------------------------------------------------------------------------------------------------*
 
-def cby_carbpy(cby_from='',cby_to='',cby_mode='',guiprompt=True):
+def main(cby_from='',cby_to='',cby_mode='',guiprompt=True,cby_rnd=3):
 
     cby_co2km = 0.0
     cby_co2   = 0.0
@@ -59,18 +61,17 @@ def cby_carbpy(cby_from='',cby_to='',cby_mode='',guiprompt=True):
 
             if lcl_msgtxt == "":
 
-                cby_co2km          = dict_Co2.get(lcl_mode)                    # Co2e per Km / transport mode determination
+                cby_co2km          = cby_getCo2Km(lcl_mode)                    # Co2e per Km / transport mode determination
 
                 try:
                     (1 / cby_co2km)                                            # valid value?
                 except:
                     lcl_msgtxt = "Error - Select Transport Mode"               # No - setup error message 
-                else:
-                    cby_co2            = (cby_dist * cby_co2km)/1000           # OK - so calculate total Co2 emmission 
+                else:                                                  
+                    cby_co2 = round(((cby_dist * cby_co2km)/1000),cby_rnd)     # OK - so calculate total emmission in Co2 kg  
             
         if guiprompt: cby_popup(cby_co2,lcl_msgtxt)                            # Pop-up the result - if GUI
         return cby_co2                                                         # - or return it to caller. 
-
 
  #--------------------------------------------------------------------------------------------------------------------------------*
  # GUI prompt, where needed. 
@@ -79,11 +80,11 @@ def cby_gui():
     
 
     
-    #import PySimpleGUI as sg
+    import PySimpleGUI as sg
 
     sg.ChangeLookAndFeel('LightBlue3')
 
-    form = sg.FlexForm('CarbPy', default_element_size=(40, 1))
+    form = sg.FlexForm('Carby', default_element_size=(40, 1))
 
     combos = []
     # Build combo box list, which is simply comprised of the keys of the Co2 dictionary, further below
@@ -93,7 +94,7 @@ def cby_gui():
         
     
     layout = [
-        [sg.Text('CarbPy - Travel Co2 Emission Estimator', size=(30, 1), font=("Helvetica", 25))],
+        [sg.Text('Carby - Travel Co2 Emission Estimator', size=(30, 1), font=("Helvetica", 25))],
         [sg.Text('Enter "From" location ....                                Enter "To" location....')],
         [sg.Multiline(default_text='', size=(35, 3)),
          sg.Multiline(default_text='', size=(35, 3))],
@@ -117,7 +118,7 @@ def cby_popup(cby_co2,lcl_msgtxt):
     co2res = ""
 
     if (lcl_msgtxt == ""):
-        co2res = "Total Co2 consumption for your journey is: {} Metric Tonnes"
+        co2res = "Total Co2 production for your journey is: {} Metric Tonnes"
         co2res = co2res.format(cby_co2)
     else:
         co2res = lcl_msgtxt
@@ -138,8 +139,7 @@ def cby_getdist(cby_from,cby_to):
     try:
         cby_fr_latlon = cby_getcoords(cby_from)
     except:
-        lcl_msgtxt = "Error with from location" 
-        return(0,lcl_msgtxt) 
+        lcl_msgtxt = "Error with from location"   
     try:
         cby_to_latlon = cby_getcoords(cby_to)
     except:
@@ -166,9 +166,15 @@ def cby_getcoords(inputaddr):
  #--------------------------------------------------------------------------------------------------------------------------------*
 
 def cby_getgeodist(frcoord,tocoord):
-#pythpy
+
     from geopy.distance import geodesic
     return(geodesic(frcoord, tocoord).kilometers)
+
+ #--------------------------------------------------------------------------------------------------------------------------------*
+ # Look up and return GHG emmissions (gc02e/km) for mode/entity 
+ #--------------------------------------------------------------------------------------------------------------------------------*
+def cby_getCo2Km(cby_mode):
+     return(dict_Co2.get(cby_mode))
 
 
 dict_Co2 = {'Entity': 'GHG emissions (gCO2e/km)', 'Black cab (taxi)': 0.21176, 'Bus': 0.10471, 'Coach': 0.02779, 
@@ -187,8 +193,8 @@ dict_Co2 = {'Entity': 'GHG emissions (gCO2e/km)', 'Black cab (taxi)': 0.21176, '
 
 
 if __name__ == "__main__": 
-    cby_carbpy()
+    main()
     lcl_msgtxt = ' ' 
 else: 
     # reading under parms from another source, presumably?
-    cby_carbpy('','','',False)
+    main('','','',False,'')
