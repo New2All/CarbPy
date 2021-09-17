@@ -1,7 +1,7 @@
  #=================================================================================================================================*
  #
- # Carby  A process to Estimate the Carbon Dioxide Emmission in Metric Tons for a given journey.  
- #        From/to Locations are identified and resolved to coordinates, then distance in kilometers calculated using geopy utilities.
+ # Carby  A process to roughly estimate the Carbon Dioxide Emmission in Metric Tons for a given journey.  
+ #        From/to Locations are elected and resolved to coordinates, then distance in kilometers calculated using geopy utilities.
  #        GHG emissions (gCO2e/km) per transport mode are derived from 'our world in data' table extract.
  #        To note that this version serves as a prototype or proof-of-concept. It is not meant as a finished product. 
  #        Version 0.2 Beta 
@@ -118,7 +118,7 @@ def cby_popup(cby_co2,lcl_msgtxt):
     co2res = ""
 
     if (lcl_msgtxt == ""):
-        co2res = "Total Co2 production for your journey is: {} Metric Tonnes"
+        co2res = "Total Co2 production for your journey is approximately: {} Metric Tonnes"
         co2res = co2res.format(cby_co2)
     else:
         co2res = lcl_msgtxt
